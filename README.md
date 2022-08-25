@@ -5,7 +5,7 @@ You will also learn how to write your code and run your code.  There are a lot o
 
 ## Prerequisite
 Knowledge of basic Python programming Language 
-## Softwares Needed 
+## Software Needed 
 The following softwares are needed for this tutorial 
 1. Wokwi - an online simulator 
 2. Thonny IDE 
