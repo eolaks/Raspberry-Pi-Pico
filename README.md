@@ -13,3 +13,6 @@ The following softwares are needed for this tutorial
 The following hardware is needed 
 1. Raspberry Pi Pico 
 2. USB cable  
+## Video Tutorials 
+This link provides video tutorials for programming your raspberry Pi Pico
+[Free Python Course](https://www.youtube.com/channel/UCROdvlX2Nm1AR2eaLSQKHsQ)
