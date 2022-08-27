@@ -8,7 +8,7 @@ Knowledge of basic Python programming Language
 ## Software Needed 
 The following softwares are needed for this tutorial 
 1. Wokwi - an online simulator 
-2. Thonny IDE 
+2. [Thonny IDE] (https://thonny.org/)
 ## Hardware  Needed
 The following hardware is needed 
 1. Raspberry Pi Pico 
