@@ -1,1 +1,141 @@
+import machine
+import dht
+import time
+import network
+import socket
+
+# WLAN properties
+ssid = 'XXXXXXX' # enter your Wi-FI Access point here
+password = 'XXXXXXXX' # enter your Wi-Fi password here
+
+# Define the pin number where the DHT22 sensor is connected
+dht_pin = machine.Pin(6)
+# Create a DHT11 object
+dht_sensor = dht.DHT11(dht_pin)
+
+# Connect to Wi-Fi
+def connect_to_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(ssid, password)
+    
+    # Wait for connection
+    while not wlan.isconnected():
+        print("Connecting to WiFi...")
+        time.sleep(1)
+    
+    print("Connected to WiFi")
+    print(wlan.ifconfig())  # Print IP address, subnet mask, gateway, DNS
+
+# Function to read temperature and humidity
+def read_dht11():
+    dht_sensor.measure()
+    temperature = dht_sensor.temperature()
+    humidity = dht_sensor.humidity()
+    return temperature, humidity
+
+
+
+
+# Create HTML content
+def webpage(temperature, humidity):
+    html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8"> <!-- Ensure UTF-8 encoding -->
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="refresh" content="10"> <!-- Refresh every 10 seconds -->
+            <style>
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f0f0f0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                }}
+                .card {{
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    max-width: 300px;
+                    text-align: center;
+                }}
+                h1 {{
+                    font-size: 24px;
+                    color: #333;
+                }}
+                p {{
+                    font-size: 18px;
+                    color: #555;
+                    margin: 10px 0;
+                }}
+                .value {{
+                    font-size: 32px;
+                    color: #007BFF;
+                }}
+                footer {{
+                    margin-top: 20px;
+                    font-size: 12px;
+                    color: #888;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1>Weather Station</h1>
+                <p>Temperature</p>
+                <p class="value">{temperature} °C</p> <!-- Degree symbol -->
+                <p>Humidity</p>
+                <p class="value">{humidity} %</p>
+                <footer>Powered by Raspberry Pi Pico W</footer>
+            </div>
+        </body>
+        </html>
+    """
+    return html
+
+
+
+
+# Create a server
+def serve(connection):
+    while True:
+        client = connection.accept()[0]
+        request = client.recv(1024)
+        request = str(request)
+        
+        # Read temperature and humidity
+        temperature, humidity = read_dht11()
+        time.sleep(2)
+        
+        # Send HTML response
+        response = webpage(temperature, humidity)
+        client.send('HTTP/1.1 200 OK\n')
+        client.send('Content-Type: text/html\n')
+        client.send('Connection: close\n\n')
+        client.sendall(response)
+        client.close()
+
+# Main function to set up the server
+def start_server():
+    # Connect to WiFi
+    connect_to_wifi()
+    
+    # Set up socket for web server
+    addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+    connection = socket.socket()
+    connection.bind(addr)
+    connection.listen(1)
+    
+    print(f"Server started on {addr}")
+    
+    serve(connection)
+
+# Run the server
+start_server()
+
 
