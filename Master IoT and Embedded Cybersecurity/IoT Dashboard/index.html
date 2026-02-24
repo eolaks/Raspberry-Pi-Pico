@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time IoT Dashboard</title>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin: 20px auto;
+            width: 320px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 120px;
+        }
+
+        .on { background-color: green; color: white; }
+        .off { background-color: red; color: white; }
+
+        .status-on { color: green; }
+        .status-off { color: red; }
+    </style>
+</head>
+
+<body>
+
+<h1>🌍 Real-Time IoT Dashboard</h1>
+
+<div class="card">
+    <h2>🌡 Temperature</h2>
+    <div id="temperature" class="value">-- °C</div>
+</div>
+
+<div class="card">
+    <h2>💧 Humidity</h2>
+    <div id="humidity" class="value">-- %</div>
+</div>
+
+<div class="card">
+    <h2>🔌 Relay Status</h2>
+    <div id="relay" class="value status-off">OFF</div>
+
+    <button class="on" onclick="sendRelay('ON')">Turn ON</button>
+    <button class="off" onclick="sendRelay('OFF')">Turn OFF</button>
+</div>
+
+<script>
+    var socket = io();
+
+    socket.on("update_data", function(data) {
+        document.getElementById("temperature").innerHTML = data.temperature + " °C";
+        document.getElementById("humidity").innerHTML = data.humidity + " %";
+
+        var relayElement = document.getElementById("relay");
+        relayElement.innerHTML = data.relay;
+
+        if (data.relay === "ON") {
+            relayElement.className = "value status-on";
+        } else {
+            relayElement.className = "value status-off";
+        }
+    });
+
+    function sendRelay(state) {
+        socket.emit("relay_control", { action: state });
+    }
+</script>
+
+</body>
+</html>
